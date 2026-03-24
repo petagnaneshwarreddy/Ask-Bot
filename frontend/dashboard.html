@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AskBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            background: #e9ecef;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-small {
+            padding: 0.4rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            color: #666;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🎓 AskBot Admin Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalFaqs">0</h3>
+                <p>Total FAQs</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="unansweredCount">0</h3>
+                <p>Unanswered Queries</p>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('manage')">Manage FAQs</button>
+            <button class="tab" onclick="switchTab('add')">Add New FAQ</button>
+            <button class="tab" onclick="switchTab('unanswered')">Unanswered Queries</button>
+        </div>
+
+        <!-- Manage FAQs Tab -->
+        <div id="manageTab" class="tab-content active">
+            <div class="card">
+                <h2>All FAQs</h2>
+                <div id="faqTable"></div>
+            </div>
+        </div>
+
+        <!-- Add FAQ Tab -->
+        <div id="addTab" class="tab-content">
+            <div class="card">
+                <h2>Add New FAQ</h2>
+                <div id="addMessage"></div>
+                <form id="addFaqForm">
+                    <div class="form-group">
+                        <label for="newQuestion">Question</label>
+                        <input type="text" id="newQuestion" required placeholder="Enter the question">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAnswer">Answer</label>
+                        <textarea id="newAnswer" required placeholder="Enter the answer"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add FAQ</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Unanswered Queries Tab -->
+        <div id="unansweredTab" class="tab-content">
+            <div class="card">
+                <h2>Unanswered User Queries</h2>
+                <p style="color: #666; margin-bottom: 1rem;">Review questions from users and add them to the FAQ database.</p>
+                <div id="unansweredTable"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit FAQ</h2>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editFaqForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="editQuestion">Question</label>
+                    <input type="text" id="editQuestion" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAnswer">Answer</label>
+                    <textarea id="editAnswer" required></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                    <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Answer Query Modal -->
+    <div id="answerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Answer User Query</h2>
+                <button class="close-modal" onclick="closeAnswerModal()">&times;</button>
+            </div>
+            <form id="answerQueryForm">
+                <input type="hidden" id="queryId">
+                <div class="form-group">
+                    <label for="queryQuestion">Question</label>
+                    <input type="text" id="queryQuestion" readonly style="background: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                    <label for="queryAnswer">Answer</label>
+                    <textarea id="queryAnswer" required placeholder="Enter the answer for this question"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Add to FAQ & Resolve</button>
+                    <button type="button" class="btn btn-danger" onclick="closeAnswerModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';
+        let faqs = [];
+        let unansweredQueries = [];
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            
+            if (tab === 'manage') {
+                document.getElementById('manageTab').classList.add('active');
+                loadFaqs();
+            } else if (tab === 'add') {
+                document.getElementById('addTab').classList.add('active');
+            } else if (tab === 'unanswered') {
+                document.getElementById('unansweredTab').classList.add('active');
+                loadUnanswered();
+            }
+        }
+
+        // Load FAQs
+        async function loadFaqs() {
+            try {
+                const response = await fetch(`${API_URL}/get-faqs`);
+                faqs = await response.json();
+                document.getElementById('totalFaqs').textContent = faqs.length;
+                renderFaqs();
+            } catch (error) {
+                console.error('Error loading FAQs:', error);
+            }
+        }
+
+        // Render FAQs table
+        function renderFaqs() {
+            const tableDiv = document.getElementById('faqTable');
+            
+            if (faqs.length === 0) {
+                tableDiv.innerHTML = '<div class="empty-state"><h3>No FAQs yet</h3><p>Add your first FAQ to get started</p></div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>ID</th><th>Question</th><th>Answer</th><th>Actions</th></tr></thead><tbody>';
+            
+            faqs.forEach(faq => {
+                html += `
+                    <tr>
+                        <td>${faq.id}</td>
+                        <td>${faq.question}</td>
+                        <td>${faq.answer}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-warning btn-small" onclick="openEditModal(${faq.id})">Edit</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteFaq(${faq.id})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        // Add FAQ
+        document.getElementById('addFaqForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const question = document.getElementById('newQuestion').value;
+            const answer = document.getElementById('newAnswer').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/add-faq`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, answer })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('addMessage').innerHTML = '<div class="message success">FAQ added successfully!</div>';
+                    document.getElementById('addFaqForm').reset();
+                    loadFaqs();
+                    setTimeout(() => {
+                        document.getElementById('addMessage').innerHTML = '';
+                    }, 3000);
+                }
+            } catch (error) {
+                document.getElementById('addMessage').innerHTML = '<div class="message error">Error adding FAQ. Please try again.</div>';
+            }
+        });
+
+        // Open edit modal
+        function openEditModal(id) {
+            const faq = faqs.find(f => f.id === id);
+            if (!faq) return;
+            
+            document.getElementById('editId').value = faq.id;
+            document.getElementById('editQuestion').value = faq.question;
+            document.getElementById('editAnswer').value = faq.answer;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editFaqForm').reset();
+        }
+
+        // Edit FAQ
+        document.getElementById('editFaqForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editId').value);
+            const question = document.getElementById('editQuestion').value;
+            const answer = document.getElementById('editAnswer').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/update-faq`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, question, answer })
+                });
+                
+                if (response.ok) {
+                    closeEditModal();
+                    loadFaqs();
+                }
+            } catch (error) {
+                alert('Error updating FAQ. Please try again.');
+            }
+        });
+
+        // Delete FAQ
+        async function deleteFaq(id) {
+            if (!confirm('Are you sure you want to delete this FAQ?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/delete-faq/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadFaqs();
+                }
+            } catch (error) {
+                alert('Error deleting FAQ. Please try again.');
+            }
+        }
+
+        // Load unanswered queries
+        async function loadUnanswered() {
+            try {
+                const response = await fetch(`${API_URL}/unanswered`);
+                unansweredQueries = await response.json();
+                document.getElementById('unansweredCount').textContent = unansweredQueries.length;
+                renderUnanswered();
+            } catch (error) {
+                console.error('Error loading unanswered queries:', error);
+            }
+        }
+
+        // Render unanswered queries
+        function renderUnanswered() {
+            const tableDiv = document.getElementById('unansweredTable');
+            
+            if (unansweredQueries.length === 0) {
+                tableDiv.innerHTML = '<div class="empty-state"><h3>No unanswered queries</h3><p>All user questions have been addressed</p></div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>ID</th><th>Question</th><th>Actions</th></tr></thead><tbody>';
+            
+            unansweredQueries.forEach(query => {
+                html += `
+                    <tr>
+                        <td>${query.id}</td>
+                        <td>${query.question}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-small" onclick="openAnswerModal(${query.id}, '${query.question.replace(/'/g, "\\'")}')">Answer</button>
+                                <button class="btn btn-success btn-small" onclick="clearQuery(${query.id})">Mark as Resolved</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        // Open answer modal
+        function openAnswerModal(id, question) {
+            document.getElementById('queryId').value = id;
+            document.getElementById('queryQuestion').value = question;
+            document.getElementById('queryAnswer').value = '';
+            document.getElementById('answerModal').classList.add('active');
+        }
+
+        // Close answer modal
+        function closeAnswerModal() {
+            document.getElementById('answerModal').classList.remove('active');
+            document.getElementById('answerQueryForm').reset();
+        }
+
+        // Answer query and add to FAQ
+        document.getElementById('answerQueryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const queryId = parseInt(document.getElementById('queryId').value);
+            const question = document.getElementById('queryQuestion').value;
+            const answer = document.getElementById('queryAnswer').value;
+            
+            try {
+                // Add to FAQ
+                const addResponse = await fetch(`${API_URL}/add-faq`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, answer })
+                });
+                
+                if (addResponse.ok) {
+                    // Remove from unanswered queries
+                    await fetch(`${API_URL}/clear-unanswered/${queryId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    closeAnswerModal();
+                    loadFaqs();
+                    loadUnanswered();
+                    alert('Answer added to FAQ successfully!');
+                }
+            } catch (error) {
+                alert('Error adding answer. Please try again.');
+            }
+        });
+
+        // Clear unanswered query
+        async function clearQuery(id) {
+            try {
+                const response = await fetch(`${API_URL}/clear-unanswered/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadUnanswered();
+                }
+            } catch (error) {
+                alert('Error clearing query. Please try again.');
+            }
+        }
+
+        // Logout
+        function logout() {
+            window.location.href = 'index.html';
+        }
+
+        // Initial load
+        loadFaqs();
+        loadUnanswered();
+    </script>
+</body>
+</html>
