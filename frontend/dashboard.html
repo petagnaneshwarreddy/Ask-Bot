@@ -1,671 +1,925 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - AskBot</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AskBot — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0d0e14;
+      --surface:   #13151f;
+      --card:      #191c28;
+      --border:    #252838;
+      --accent:    #4f6ef7;
+      --accent-lo: rgba(79,110,247,.1);
+      --gold:      #c9a84c;
+      --success:   #22c55e;
+      --danger:    #ef4444;
+      --warn:      #f59e0b;
+      --ink:       #f0f1f5;
+      --muted:     #6b7080;
+      --ease:      cubic-bezier(.4,0,.2,1);
+      --radius:    12px;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+    }
 
-        .header h1 {
-            font-size: 1.8rem;
-        }
+    /* ── SIDEBAR ──────────────────────────────────────── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; inset-block: 0; left: 0;
+      z-index: 100;
+    }
 
-        .logout-btn {
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .sidebar-brand {
+      padding: 1.6rem 1.5rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--accent); display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 18px; height: 18px; }
+    .brand-text { line-height: 1.15; }
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900; font-size: .95rem; color: var(--ink);
+    }
+    .brand-role { font-size: .7rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
 
-        /* Container */
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
 
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
+    .nav-section-label {
+      font-size: .65rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+      padding: .6rem 1.5rem .3rem;
+    }
 
-        .tab {
-            padding: 0.8rem 1.5rem;
-            background: #e9ecef;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .7rem 1.5rem; cursor: pointer;
+      font-size: .86rem; font-weight: 500; color: var(--muted);
+      border-left: 3px solid transparent;
+      transition: color .2s, background .2s, border-color .2s;
+      user-select: none;
+    }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-item:hover { color: var(--ink); background: rgba(255,255,255,.03); }
+    .nav-item.active {
+      color: var(--accent); background: var(--accent-lo);
+      border-left-color: var(--accent);
+    }
+    .nav-item .badge {
+      margin-left: auto; background: var(--danger);
+      color: #fff; font-size: .65rem; font-weight: 700;
+      padding: .1rem .45rem; border-radius: 99px; min-width: 18px; text-align: center;
+    }
 
-        .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+    .sidebar-footer {
+      padding: 1.2rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .logout-btn {
+      display: flex; align-items: center; gap: .65rem;
+      width: 100%; padding: .65rem 1rem;
+      background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2);
+      border-radius: 8px; color: #ef4444;
+      font-size: .84rem; font-weight: 600; cursor: pointer;
+      transition: background .2s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,.15); }
+    .logout-btn svg { width: 15px; height: 15px; }
 
-        /* Tab Content */
-        .tab-content {
-            display: none;
-        }
+    /* ── MAIN ─────────────────────────────────────────── */
+    .main {
+      margin-left: 240px; flex: 1;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
 
-        .tab-content.active {
-            display: block;
-        }
+    /* ── TOPBAR ───────────────────────────────────────── */
+    .topbar {
+      height: 64px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky; top: 0; z-index: 50;
+    }
 
-        /* Card */
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-        }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 700; color: var(--ink);
+    }
+    .page-breadcrumb { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
 
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 1.5rem;
-        }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
 
-        /* Form */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+    .topbar-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 700; color: #fff;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-            color: #333;
-        }
+    /* ── CONTENT ──────────────────────────────────────── */
+    .content { padding: 2rem; flex: 1; }
 
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: inherit;
-        }
+    /* ── STATS ────────────────────────────────────────── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem; margin-bottom: 2rem;
+    }
 
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.4rem 1.5rem;
+      display: flex; align-items: flex-start; gap: 1rem;
+      position: relative; overflow: hidden;
+      transition: transform .2s var(--ease), box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+    .stat-card::after {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+    }
+    .stat-card.blue::after   { background: var(--accent); }
+    .stat-card.amber::after  { background: var(--warn); }
+    .stat-card.green::after  { background: var(--success); }
+    .stat-card.purple::after { background: #a855f7; }
 
-        .btn {
-            padding: 0.8rem 2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: opacity 0.3s;
-        }
+    .stat-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-card.blue   .stat-icon { background: rgba(79,110,247,.12); color: var(--accent); }
+    .stat-card.amber  .stat-icon { background: rgba(245,158,11,.12); color: var(--warn); }
+    .stat-card.green  .stat-icon { background: rgba(34,197,94,.12);  color: var(--success); }
+    .stat-card.purple .stat-icon { background: rgba(168,85,247,.12); color: #a855f7; }
+    .stat-icon svg { width: 20px; height: 20px; }
 
-        .btn:hover {
-            opacity: 0.9;
-        }
+    .stat-body { flex: 1; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem; font-weight: 900; color: var(--ink);
+      line-height: 1; margin-bottom: .25rem;
+    }
+    .stat-label { font-size: .78rem; color: var(--muted); font-weight: 500; }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+    /* ── TAB PANEL ────────────────────────────────────── */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
+    /* ── PANEL CARD ───────────────────────────────────── */
+    .panel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
 
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
+    .panel-header {
+      padding: 1.3rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700;
+    }
+    .panel-desc { font-size: .8rem; color: var(--muted); margin-top: .15rem; }
 
-        .btn-warning {
-            background: #ffc107;
-            color: #333;
-        }
+    .panel-body { padding: 1.6rem; }
 
-        .btn-small {
-            padding: 0.4rem 1rem;
-            font-size: 0.9rem;
-        }
+    /* ── TABLE ────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
 
-        /* Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: .84rem;
+    }
+    thead th {
+      padding: .85rem 1rem;
+      text-align: left; font-weight: 600; letter-spacing: .04em;
+      font-size: .72rem; text-transform: uppercase; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    tbody td {
+      padding: .95rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink); vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,.02); }
 
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
+    .td-question { max-width: 300px; }
+    .td-answer   { max-width: 320px; color: var(--muted); }
+    .td-text-clip {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: block; max-width: 100%;
+    }
 
-        th {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #667eea;
-        }
+    .id-badge {
+      display: inline-block;
+      background: var(--accent-lo); color: var(--accent);
+      font-size: .7rem; font-weight: 700; letter-spacing: .04em;
+      padding: .15rem .5rem; border-radius: 4px;
+    }
 
-        tr:hover {
-            background: #f8f9fa;
-        }
+    .action-cell { display: flex; gap: .5rem; align-items: center; }
 
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
+    /* ── BUTTONS ──────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .5rem 1rem; border-radius: 7px;
+      font-size: .8rem; font-weight: 600; cursor: pointer;
+      border: 1px solid transparent;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity .15s, transform .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .btn svg { width: 13px; height: 13px; }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
 
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+    .btn-primary  { background: var(--accent);   color: #fff; }
+    .btn-success  { background: var(--success);  color: #fff; }
+    .btn-danger   { background: var(--danger);   color: #fff; }
+    .btn-warn     { background: var(--warn);      color: #0d0e14; }
+    .btn-ghost {
+      background: transparent; color: var(--muted);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
 
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
+    .btn-lg { padding: .75rem 1.8rem; font-size: .9rem; border-radius: 9px; }
 
-        .stat-card h3 {
-            color: #667eea;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
+    /* ── FORM ─────────────────────────────────────────── */
+    .field { margin-bottom: 1.4rem; }
+    .field label {
+      display: block; font-size: .78rem; font-weight: 600;
+      letter-spacing: .04em; color: var(--muted);
+      text-transform: uppercase; margin-bottom: .55rem;
+    }
+    .field input, .field textarea {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 9px;
+      padding: .75rem 1rem; color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-size: .88rem;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+      resize: vertical;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,110,247,.15);
+    }
+    .field input[readonly] {
+      background: var(--bg); color: var(--muted); cursor: default;
+    }
+    .field textarea { min-height: 110px; }
 
-        .stat-card p {
-            color: #666;
-        }
+    .form-actions { display: flex; gap: .75rem; margin-top: 1.8rem; }
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
+    /* ── TOAST ────────────────────────────────────────── */
+    .toast-area {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      z-index: 9999; display: flex; flex-direction: column; gap: .5rem;
+    }
+    .toast {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .8rem 1.2rem; border-radius: 10px;
+      font-size: .84rem; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      animation: toastIn .3s var(--ease);
+      min-width: 240px; max-width: 340px;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .toast.success { background: #14532d; border: 1px solid #22c55e; color: #bbf7d0; }
+    .toast.error   { background: #450a0a; border: 1px solid #ef4444; color: #fecaca; }
+    .toast svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-        .modal.active {
-            display: flex;
-        }
+    /* ── MODAL ────────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
 
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
+    .modal-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; width: 90%; max-width: 520px;
+      max-height: 90vh; overflow-y: auto;
+      transform: translateY(14px) scale(.97);
+      transition: transform .28s var(--ease);
+    }
+    .overlay.show .modal-box { transform: translateY(0) scale(1); }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
+    .modal-head {
+      padding: 1.3rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-head-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700;
+    }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: rgba(255,255,255,.06); border: none; color: var(--muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.1); color: var(--ink); }
+    .modal-close svg { width: 14px; height: 14px; }
 
-        .modal-header h2 {
-            color: #667eea;
-        }
+    .modal-body { padding: 1.6rem; }
 
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
-        }
+    /* ── EMPTY STATE ──────────────────────────────────── */
+    .empty {
+      padding: 3.5rem 2rem; text-align: center; color: var(--muted);
+    }
+    .empty svg { width: 42px; height: 42px; margin: 0 auto 1rem; opacity: .3; }
+    .empty h3 { font-size: .95rem; font-weight: 600; color: var(--ink); margin-bottom: .35rem; }
+    .empty p  { font-size: .82rem; }
 
-        .message {
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-        }
+    /* ── CONFIRM DIALOG ───────────────────────────────── */
+    #confirmOverlay .modal-box { max-width: 380px; }
+    .confirm-body { padding: 1.6rem; text-align: center; }
+    .confirm-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem; color: var(--danger);
+    }
+    .confirm-icon svg { width: 22px; height: 22px; }
+    .confirm-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .confirm-sub { font-size: .84rem; color: var(--muted); margin-bottom: 1.8rem; }
+    .confirm-actions { display: flex; gap: .75rem; justify-content: center; }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #999;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-        }
-    </style>
+    /* ── RESPONSIVE ───────────────────────────────────── */
+    @media (max-width: 820px) {
+      .sidebar { transform: translateX(-100%); transition: transform .3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar { padding: 0 1.2rem; }
+      .content { padding: 1.2rem; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <h1>🎓 AskBot Admin Dashboard</h1>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+
+<!-- ═══ SIDEBAR ═══════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <!-- mortarboard / academic cap SVG -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3.33 1.67 8.67 1.67 12 0v-5"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <div class="brand-name">AskBot</div>
+      <div class="brand-role">Admin Console</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+
+    <div class="nav-item active" data-tab="manage" onclick="switchTab('manage', this)">
+      <!-- database icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+      </svg>
+      Manage FAQs
     </div>
 
-    <!-- Container -->
-    <div class="container">
-        <!-- Stats -->
-        <div class="stats">
-            <div class="stat-card">
-                <h3 id="totalFaqs">0</h3>
-                <p>Total FAQs</p>
-            </div>
-            <div class="stat-card">
-                <h3 id="unansweredCount">0</h3>
-                <p>Unanswered Queries</p>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('manage')">Manage FAQs</button>
-            <button class="tab" onclick="switchTab('add')">Add New FAQ</button>
-            <button class="tab" onclick="switchTab('unanswered')">Unanswered Queries</button>
-        </div>
-
-        <!-- Manage FAQs Tab -->
-        <div id="manageTab" class="tab-content active">
-            <div class="card">
-                <h2>All FAQs</h2>
-                <div id="faqTable"></div>
-            </div>
-        </div>
-
-        <!-- Add FAQ Tab -->
-        <div id="addTab" class="tab-content">
-            <div class="card">
-                <h2>Add New FAQ</h2>
-                <div id="addMessage"></div>
-                <form id="addFaqForm">
-                    <div class="form-group">
-                        <label for="newQuestion">Question</label>
-                        <input type="text" id="newQuestion" required placeholder="Enter the question">
-                    </div>
-                    <div class="form-group">
-                        <label for="newAnswer">Answer</label>
-                        <textarea id="newAnswer" required placeholder="Enter the answer"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add FAQ</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Unanswered Queries Tab -->
-        <div id="unansweredTab" class="tab-content">
-            <div class="card">
-                <h2>Unanswered User Queries</h2>
-                <p style="color: #666; margin-bottom: 1rem;">Review questions from users and add them to the FAQ database.</p>
-                <div id="unansweredTable"></div>
-            </div>
-        </div>
+    <div class="nav-item" data-tab="add" onclick="switchTab('add', this)">
+      <!-- plus-circle icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      Add New FAQ
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit FAQ</h2>
-                <button class="close-modal" onclick="closeEditModal()">&times;</button>
-            </div>
-            <form id="editFaqForm">
-                <input type="hidden" id="editId">
-                <div class="form-group">
-                    <label for="editQuestion">Question</label>
-                    <input type="text" id="editQuestion" required>
-                </div>
-                <div class="form-group">
-                    <label for="editAnswer">Answer</label>
-                    <textarea id="editAnswer" required></textarea>
-                </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
-                </div>
-            </form>
+    <div class="nav-item" data-tab="unanswered" onclick="switchTab('unanswered', this)">
+      <!-- message-circle icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Unanswered Queries
+      <span class="badge" id="sidebarBadge" style="display:none">0</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <div class="page-title" id="pageTitle">Manage FAQs</div>
+      <div class="page-breadcrumb">Admin Dashboard / <span id="pageCrumb">Manage FAQs</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-avatar">AD</div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card blue">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
         </div>
+        <div class="stat-body">
+          <div class="stat-num" id="totalFaqs">—</div>
+          <div class="stat-label">Total FAQs</div>
+        </div>
+      </div>
+
+      <div class="stat-card amber">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="stat-body">
+          <div class="stat-num" id="unansweredCount">—</div>
+          <div class="stat-label">Pending Queries</div>
+        </div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stat-body">
+          <div class="stat-num" id="resolvedCount">—</div>
+          <div class="stat-label">Resolved Today</div>
+        </div>
+      </div>
+
+      <div class="stat-card purple">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="stat-body">
+          <div class="stat-num">98%</div>
+          <div class="stat-label">Accuracy Rate</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Answer Query Modal -->
-    <div id="answerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Answer User Query</h2>
-                <button class="close-modal" onclick="closeAnswerModal()">&times;</button>
-            </div>
-            <form id="answerQueryForm">
-                <input type="hidden" id="queryId">
-                <div class="form-group">
-                    <label for="queryQuestion">Question</label>
-                    <input type="text" id="queryQuestion" readonly style="background: #f8f9fa;">
-                </div>
-                <div class="form-group">
-                    <label for="queryAnswer">Answer</label>
-                    <textarea id="queryAnswer" required placeholder="Enter the answer for this question"></textarea>
-                </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-success">Add to FAQ & Resolve</button>
-                    <button type="button" class="btn btn-danger" onclick="closeAnswerModal()">Cancel</button>
-                </div>
-            </form>
+    <!-- MANAGE TAB -->
+    <div id="manageTab" class="tab-content active">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">FAQ Database</div>
+            <div class="panel-desc">All questions and answers available to AskBot</div>
+          </div>
+          <button class="btn btn-primary" onclick="switchTab('add', document.querySelector('[data-tab=add]'))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add FAQ
+          </button>
         </div>
+        <div class="table-wrap" id="faqTableWrap">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <h3>Loading FAQs…</h3>
+            <p>Fetching data from the server</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        const API_URL = '';
-        let faqs = [];
-        let unansweredQueries = [];
+    <!-- ADD TAB -->
+    <div id="addTab" class="tab-content">
+      <div class="panel" style="max-width: 680px;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Add New FAQ</div>
+            <div class="panel-desc">Create a new question and answer entry</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="addFeedback"></div>
+          <div class="field">
+            <label>Question</label>
+            <input type="text" id="newQuestion" placeholder="e.g. What are the admission requirements?" />
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <textarea id="newAnswer" placeholder="Provide a clear, helpful answer…"></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-lg" onclick="addFaq()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Save FAQ
+            </button>
+            <button class="btn btn-ghost btn-lg" onclick="document.getElementById('newQuestion').value='';document.getElementById('newAnswer').value=''">
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Tab switching
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            
-            if (tab === 'manage') {
-                document.getElementById('manageTab').classList.add('active');
-                loadFaqs();
-            } else if (tab === 'add') {
-                document.getElementById('addTab').classList.add('active');
-            } else if (tab === 'unanswered') {
-                document.getElementById('unansweredTab').classList.add('active');
-                loadUnanswered();
-            }
-        }
+    <!-- UNANSWERED TAB -->
+    <div id="unansweredTab" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Unanswered Queries</div>
+            <div class="panel-desc">Questions from users that need a response</div>
+          </div>
+        </div>
+        <div class="table-wrap" id="unansweredTableWrap">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <h3>Loading queries…</h3><p>Fetching data</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Load FAQs
-        async function loadFaqs() {
-            try {
-                const response = await fetch(`${API_URL}/get-faqs`);
-                faqs = await response.json();
-                document.getElementById('totalFaqs').textContent = faqs.length;
-                renderFaqs();
-            } catch (error) {
-                console.error('Error loading FAQs:', error);
-            }
-        }
+  </main>
+</div>
 
-        // Render FAQs table
-        function renderFaqs() {
-            const tableDiv = document.getElementById('faqTable');
-            
-            if (faqs.length === 0) {
-                tableDiv.innerHTML = '<div class="empty-state"><h3>No FAQs yet</h3><p>Add your first FAQ to get started</p></div>';
-                return;
-            }
-            
-            let html = '<table><thead><tr><th>ID</th><th>Question</th><th>Answer</th><th>Actions</th></tr></thead><tbody>';
-            
-            faqs.forEach(faq => {
-                html += `
-                    <tr>
-                        <td>${faq.id}</td>
-                        <td>${faq.question}</td>
-                        <td>${faq.answer}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-warning btn-small" onclick="openEditModal(${faq.id})">Edit</button>
-                                <button class="btn btn-danger btn-small" onclick="deleteFaq(${faq.id})">Delete</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            html += '</tbody></table>';
-            tableDiv.innerHTML = html;
-        }
+<!-- ═══ EDIT MODAL ═══════════════════════════════════════ -->
+<div class="overlay" id="editOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-title">Edit FAQ</div>
+      <button class="modal-close" onclick="closeModal('editOverlay')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId" />
+      <div class="field">
+        <label>Question</label>
+        <input type="text" id="editQuestion" />
+      </div>
+      <div class="field">
+        <label>Answer</label>
+        <textarea id="editAnswer"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-success btn-lg" onclick="saveEdit()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Save Changes
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="closeModal('editOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Add FAQ
-        document.getElementById('addFaqForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const question = document.getElementById('newQuestion').value;
-            const answer = document.getElementById('newAnswer').value;
-            
-            try {
-                const response = await fetch(`${API_URL}/add-faq`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question, answer })
-                });
-                
-                if (response.ok) {
-                    document.getElementById('addMessage').innerHTML = '<div class="message success">FAQ added successfully!</div>';
-                    document.getElementById('addFaqForm').reset();
-                    loadFaqs();
-                    setTimeout(() => {
-                        document.getElementById('addMessage').innerHTML = '';
-                    }, 3000);
-                }
-            } catch (error) {
-                document.getElementById('addMessage').innerHTML = '<div class="message error">Error adding FAQ. Please try again.</div>';
-            }
-        });
+<!-- ═══ ANSWER MODAL ══════════════════════════════════════ -->
+<div class="overlay" id="answerOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-title">Answer Query</div>
+      <button class="modal-close" onclick="closeModal('answerOverlay')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="queryId" />
+      <div class="field">
+        <label>User Question</label>
+        <input type="text" id="queryQuestion" readonly />
+      </div>
+      <div class="field">
+        <label>Your Answer</label>
+        <textarea id="queryAnswer" placeholder="Write a clear, helpful answer…"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-success btn-lg" onclick="submitAnswer()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Add to FAQ & Resolve
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="closeModal('answerOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Open edit modal
-        function openEditModal(id) {
-            const faq = faqs.find(f => f.id === id);
-            if (!faq) return;
-            
-            document.getElementById('editId').value = faq.id;
-            document.getElementById('editQuestion').value = faq.question;
-            document.getElementById('editAnswer').value = faq.answer;
-            document.getElementById('editModal').classList.add('active');
-        }
+<!-- ═══ CONFIRM DIALOG ════════════════════════════════════ -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="confirm-body">
+      <div class="confirm-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </div>
+      <div class="confirm-title">Delete this FAQ?</div>
+      <div class="confirm-sub">This action cannot be undone. The entry will be permanently removed from the database.</div>
+      <div class="confirm-actions">
+        <button class="btn btn-danger btn-lg" id="confirmYes">Delete</button>
+        <button class="btn btn-ghost btn-lg" onclick="closeModal('confirmOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Close edit modal
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            document.getElementById('editFaqForm').reset();
-        }
+<!-- ═══ TOAST AREA ════════════════════════════════════════ -->
+<div class="toast-area" id="toastArea"></div>
 
-        // Edit FAQ
-        document.getElementById('editFaqForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const id = parseInt(document.getElementById('editId').value);
-            const question = document.getElementById('editQuestion').value;
-            const answer = document.getElementById('editAnswer').value;
-            
-            try {
-                const response = await fetch(`${API_URL}/update-faq`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, question, answer })
-                });
-                
-                if (response.ok) {
-                    closeEditModal();
-                    loadFaqs();
-                }
-            } catch (error) {
-                alert('Error updating FAQ. Please try again.');
-            }
-        });
+<script>
+  const API_URL = '';
+  let faqs = [];
+  let unansweredQueries = [];
+  let resolvedToday = 0;
+  let pendingConfirm = null;
 
-        // Delete FAQ
-        async function deleteFaq(id) {
-            if (!confirm('Are you sure you want to delete this FAQ?')) return;
-            
-            try {
-                const response = await fetch(`${API_URL}/delete-faq/${id}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    loadFaqs();
-                }
-            } catch (error) {
-                alert('Error deleting FAQ. Please try again.');
-            }
-        }
+  /* ── TAB SWITCHING ── */
+  const TITLES = { manage: 'Manage FAQs', add: 'Add New FAQ', unanswered: 'Unanswered Queries' };
 
-        // Load unanswered queries
-        async function loadUnanswered() {
-            try {
-                const response = await fetch(`${API_URL}/unanswered`);
-                unansweredQueries = await response.json();
-                document.getElementById('unansweredCount').textContent = unansweredQueries.length;
-                renderUnanswered();
-            } catch (error) {
-                console.error('Error loading unanswered queries:', error);
-            }
-        }
+  function switchTab(tab, el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-        // Render unanswered queries
-        function renderUnanswered() {
-            const tableDiv = document.getElementById('unansweredTable');
-            
-            if (unansweredQueries.length === 0) {
-                tableDiv.innerHTML = '<div class="empty-state"><h3>No unanswered queries</h3><p>All user questions have been addressed</p></div>';
-                return;
-            }
-            
-            let html = '<table><thead><tr><th>ID</th><th>Question</th><th>Actions</th></tr></thead><tbody>';
-            
-            unansweredQueries.forEach(query => {
-                html += `
-                    <tr>
-                        <td>${query.id}</td>
-                        <td>${query.question}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-primary btn-small" onclick="openAnswerModal(${query.id}, '${query.question.replace(/'/g, "\\'")}')">Answer</button>
-                                <button class="btn btn-success btn-small" onclick="clearQuery(${query.id})">Mark as Resolved</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            html += '</tbody></table>';
-            tableDiv.innerHTML = html;
-        }
+    if (el) el.classList.add('active');
+    else document.querySelector(`[data-tab="${tab}"]`)?.classList.add('active');
 
-        // Open answer modal
-        function openAnswerModal(id, question) {
-            document.getElementById('queryId').value = id;
-            document.getElementById('queryQuestion').value = question;
-            document.getElementById('queryAnswer').value = '';
-            document.getElementById('answerModal').classList.add('active');
-        }
+    document.getElementById(tab + 'Tab').classList.add('active');
+    document.getElementById('pageTitle').textContent = TITLES[tab];
+    document.getElementById('pageCrumb').textContent = TITLES[tab];
 
-        // Close answer modal
-        function closeAnswerModal() {
-            document.getElementById('answerModal').classList.remove('active');
-            document.getElementById('answerQueryForm').reset();
-        }
+    if (tab === 'manage')     loadFaqs();
+    if (tab === 'unanswered') loadUnanswered();
+  }
 
-        // Answer query and add to FAQ
-        document.getElementById('answerQueryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const queryId = parseInt(document.getElementById('queryId').value);
-            const question = document.getElementById('queryQuestion').value;
-            const answer = document.getElementById('queryAnswer').value;
-            
-            try {
-                // Add to FAQ
-                const addResponse = await fetch(`${API_URL}/add-faq`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question, answer })
-                });
-                
-                if (addResponse.ok) {
-                    // Remove from unanswered queries
-                    await fetch(`${API_URL}/clear-unanswered/${queryId}`, {
-                        method: 'DELETE'
-                    });
-                    
-                    closeAnswerModal();
-                    loadFaqs();
-                    loadUnanswered();
-                    alert('Answer added to FAQ successfully!');
-                }
-            } catch (error) {
-                alert('Error adding answer. Please try again.');
-            }
-        });
+  /* ── MODAL HELPERS ── */
+  function openModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // Clear unanswered query
-        async function clearQuery(id) {
-            try {
-                const response = await fetch(`${API_URL}/clear-unanswered/${id}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    loadUnanswered();
-                }
-            } catch (error) {
-                alert('Error clearing query. Please try again.');
-            }
-        }
+  document.querySelectorAll('.overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
+  });
 
-        // Logout
-        function logout() {
-            window.location.href = 'index.html';
-        }
+  /* ── TOAST ── */
+  function toast(msg, type = 'success') {
+    const area = document.getElementById('toastArea');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    const icon = type === 'success'
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    t.innerHTML = icon + `<span>${msg}</span>`;
+    area.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
 
-        // Initial load
+  /* ── LOAD FAQS ── */
+  async function loadFaqs() {
+    try {
+      const res = await fetch(`${API_URL}/get-faqs`);
+      faqs = await res.json();
+      document.getElementById('totalFaqs').textContent = faqs.length;
+      renderFaqTable();
+    } catch {
+      renderEmpty('faqTableWrap', 'Could not load FAQs', 'Check your server connection');
+    }
+  }
+
+  function renderFaqTable() {
+    const wrap = document.getElementById('faqTableWrap');
+    if (!faqs.length) {
+      renderEmpty('faqTableWrap', 'No FAQs yet', 'Add your first FAQ to get started');
+      return;
+    }
+    let html = `<table>
+      <thead><tr>
+        <th style="width:60px">ID</th>
+        <th>Question</th>
+        <th>Answer</th>
+        <th style="width:140px">Actions</th>
+      </tr></thead><tbody>`;
+    faqs.forEach(f => {
+      html += `<tr>
+        <td><span class="id-badge">#${f.id}</span></td>
+        <td class="td-question"><span class="td-text-clip">${esc(f.question)}</span></td>
+        <td class="td-answer"><span class="td-text-clip">${esc(f.answer)}</span></td>
+        <td><div class="action-cell">
+          <button class="btn btn-warn" onclick="openEdit(${f.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit
+          </button>
+          <button class="btn btn-danger" onclick="confirmDelete(${f.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Delete
+          </button>
+        </div></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    wrap.innerHTML = html;
+  }
+
+  /* ── ADD FAQ ── */
+  async function addFaq() {
+    const question = document.getElementById('newQuestion').value.trim();
+    const answer   = document.getElementById('newAnswer').value.trim();
+    const fb = document.getElementById('addFeedback');
+    if (!question || !answer) { fb.innerHTML = `<div style="color:var(--danger);font-size:.83rem;margin-bottom:1rem;">Both fields are required.</div>`; return; }
+    try {
+      const res = await fetch(`${API_URL}/add-faq`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, answer })
+      });
+      if (res.ok) {
+        fb.innerHTML = '';
+        document.getElementById('newQuestion').value = '';
+        document.getElementById('newAnswer').value = '';
         loadFaqs();
-        loadUnanswered();
-    </script>
+        toast('FAQ added successfully');
+      }
+    } catch { toast('Error adding FAQ. Please try again.', 'error'); }
+  }
+
+  /* ── EDIT FAQ ── */
+  function openEdit(id) {
+    const f = faqs.find(x => x.id === id);
+    if (!f) return;
+    document.getElementById('editId').value = f.id;
+    document.getElementById('editQuestion').value = f.question;
+    document.getElementById('editAnswer').value = f.answer;
+    openModal('editOverlay');
+  }
+
+  async function saveEdit() {
+    const id       = parseInt(document.getElementById('editId').value);
+    const question = document.getElementById('editQuestion').value.trim();
+    const answer   = document.getElementById('editAnswer').value.trim();
+    try {
+      const res = await fetch(`${API_URL}/update-faq`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, question, answer })
+      });
+      if (res.ok) { closeModal('editOverlay'); loadFaqs(); toast('FAQ updated successfully'); }
+    } catch { toast('Error updating FAQ.', 'error'); }
+  }
+
+  /* ── DELETE FAQ ── */
+  function confirmDelete(id) {
+    pendingConfirm = id;
+    openModal('confirmOverlay');
+  }
+  document.getElementById('confirmYes').addEventListener('click', async () => {
+    if (!pendingConfirm) return;
+    try {
+      const res = await fetch(`${API_URL}/delete-faq/${pendingConfirm}`, { method: 'DELETE' });
+      if (res.ok) { closeModal('confirmOverlay'); loadFaqs(); toast('FAQ deleted'); }
+    } catch { toast('Error deleting FAQ.', 'error'); }
+    pendingConfirm = null;
+  });
+
+  /* ── LOAD UNANSWERED ── */
+  async function loadUnanswered() {
+    try {
+      const res = await fetch(`${API_URL}/unanswered`);
+      unansweredQueries = await res.json();
+      const n = unansweredQueries.length;
+      document.getElementById('unansweredCount').textContent = n;
+      const badge = document.getElementById('sidebarBadge');
+      badge.style.display = n > 0 ? '' : 'none';
+      badge.textContent = n;
+      renderUnansweredTable();
+    } catch {
+      renderEmpty('unansweredTableWrap', 'Could not load queries', 'Check your server connection');
+    }
+  }
+
+  function renderUnansweredTable() {
+    const wrap = document.getElementById('unansweredTableWrap');
+    if (!unansweredQueries.length) {
+      renderEmpty('unansweredTableWrap', 'No pending queries', 'All user questions have been addressed');
+      return;
+    }
+    let html = `<table>
+      <thead><tr>
+        <th style="width:60px">ID</th>
+        <th>User Question</th>
+        <th style="width:200px">Actions</th>
+      </tr></thead><tbody>`;
+    unansweredQueries.forEach(q => {
+      const safeQ = esc(q.question);
+      html += `<tr>
+        <td><span class="id-badge">#${q.id}</span></td>
+        <td>${safeQ}</td>
+        <td><div class="action-cell">
+          <button class="btn btn-primary" onclick='openAnswer(${q.id}, ${JSON.stringify(q.question)})'>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Answer
+          </button>
+          <button class="btn btn-ghost" onclick="clearQuery(${q.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Resolve
+          </button>
+        </div></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    wrap.innerHTML = html;
+  }
+
+  /* ── ANSWER QUERY ── */
+  function openAnswer(id, question) {
+    document.getElementById('queryId').value = id;
+    document.getElementById('queryQuestion').value = question;
+    document.getElementById('queryAnswer').value = '';
+    openModal('answerOverlay');
+  }
+
+  async function submitAnswer() {
+    const queryId  = parseInt(document.getElementById('queryId').value);
+    const question = document.getElementById('queryQuestion').value;
+    const answer   = document.getElementById('queryAnswer').value.trim();
+    if (!answer) return;
+    try {
+      const addRes = await fetch(`${API_URL}/add-faq`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, answer })
+      });
+      if (addRes.ok) {
+        await fetch(`${API_URL}/clear-unanswered/${queryId}`, { method: 'DELETE' });
+        closeModal('answerOverlay');
+        resolvedToday++;
+        document.getElementById('resolvedCount').textContent = resolvedToday;
+        loadFaqs(); loadUnanswered();
+        toast('Answer saved and query resolved');
+      }
+    } catch { toast('Error submitting answer.', 'error'); }
+  }
+
+  /* ── CLEAR QUERY ── */
+  async function clearQuery(id) {
+    try {
+      const res = await fetch(`${API_URL}/clear-unanswered/${id}`, { method: 'DELETE' });
+      if (res.ok) { resolvedToday++; document.getElementById('resolvedCount').textContent = resolvedToday; loadUnanswered(); toast('Query marked as resolved'); }
+    } catch { toast('Error resolving query.', 'error'); }
+  }
+
+  /* ── LOGOUT ── */
+  function logout() { window.location.href = 'index.html'; }
+
+  /* ── HELPERS ── */
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderEmpty(wrapperId, title, sub) {
+    document.getElementById(wrapperId).innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <h3>${title}</h3><p>${sub}</p>
+      </div>`;
+  }
+
+  /* ── INIT ── */
+  loadFaqs();
+  loadUnanswered();
+  document.getElementById('resolvedCount').textContent = 0;
+</script>
 </body>
 </html>

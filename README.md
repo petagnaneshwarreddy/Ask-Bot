@@ -1,4 +1,3 @@
-# Askbot
 # 🚀 AskBot – AI Chatbot Application
 
 AskBot is a full-stack AI chatbot application with a **FastAPI backend** and a **React frontend**. It allows users to interact with an intelligent chatbot interface.
