@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -15,7 +15,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,  # FIXED: must be False when allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -71,11 +71,10 @@ def load_json(filepath):
     try:
         with open(filepath, "r") as f:
             content = f.read().strip()
-            if not content:  # Empty file
+            if not content:
                 return []
             return json.loads(content)
     except (json.JSONDecodeError, FileNotFoundError):
-        # If file is corrupted or doesn't exist, return empty list
         return []
 
 def save_json(filepath, data):
@@ -83,6 +82,10 @@ def save_json(filepath, data):
         json.dump(data, f, indent=2)
 
 # Frontend Routes
+@app.head("/")  # FIXED: handle Render health check HEAD request
+def head_index():
+    return Response(status_code=200)
+
 @app.get("/")
 def serve_index():
     index_path = FRONTEND_DIR / "index.html"
@@ -120,11 +123,10 @@ def root():
 def chat(request: ChatRequest):
     faqs = load_json(FAQ_FILE)
     result = match_question(request.message, faqs)
-    
+
     if result:
         return {"answer": result["answer"], "matched": True}
     else:
-        # Save unanswered query
         queries = load_json(QUERIES_FILE)
         query_id = max([q.get("id", 0) for q in queries], default=0) + 1
         queries.append({"id": query_id, "question": request.message})
@@ -133,8 +135,9 @@ def chat(request: ChatRequest):
 
 @app.post("/admin/login")
 def admin_login(request: LoginRequest):
-    # Simple hardcoded authentication
-    if request.username == "admin" and request.password == "1234":
+    admin_user = os.getenv("ADMIN_USER", "admin")
+    admin_pass = os.getenv("ADMIN_PASS", "1234")
+    if request.username == admin_user and request.password == admin_pass:
         return {"success": True, "message": "Login successful"}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
